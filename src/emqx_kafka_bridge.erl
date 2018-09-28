@@ -53,7 +53,7 @@ on_client_connected(#{client_id := ClientId, username := Username}, _ConnAck, _C
     % produce_kafka_payload(<<"event">>, Client),
 
     Action = <<"connected">>,
-    Payload = [{action, Action},{device_id, ClientId}, {username, Username}],
+    Payload = [{action, Action},{client_id, ClientId}, {username, Username}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
     ok.
@@ -63,7 +63,7 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, 
     % produce_kafka_payload(<<"event">>, _Client),
 
     Action = <<"disconnected">>,
-    Payload = [{action, Action}, {device_id, ClientId}, {username, Username}],
+    Payload = [{action, Action}, {client_id, ClientId}, {username, Username}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
     ok.
@@ -106,7 +106,7 @@ ekaf_init(_Env) ->
 format_payload(Message) ->
     Username = emqx_message:get_header(username, Message),
     Payload = [{action, message_publish},
-                  {device_id, Message#message.from},
+                  {client_id, Message#message.from},
                   {username, Username},
                   {topic, Message#message.topic},
                   {payload, Message#message.payload},
@@ -127,7 +127,7 @@ unload() ->
     emqx:unhook('message.acked', fun ?MODULE:on_message_acked/3).
 
 produce_kafka_payload(Message) ->
-    Topic = <<"Processing">>,
+    Topic = <<"test">>,
     {ok,MessageBody} = emqx_json:safe_encode(Message),
     Payload = iolist_to_binary(MessageBody),
     ekaf:produce_async_batched(Topic, Payload).
