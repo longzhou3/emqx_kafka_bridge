@@ -63,7 +63,7 @@ on_client_disconnected(#{client_id := ClientId, username := Username}, _Reason, 
     % produce_kafka_payload(<<"event">>, _Client),
 
     Action = <<"disconnected">>,
-    Payload = [{action, Action}, {client_id, ClientId}, {username, Username}],
+    Payload = [{action, Action}, {client_id, ClientId}, {username, Username}, {reason, _Reason}],
     %{ok, Event} = format_event(Payload),
     produce_kafka_payload(Payload),
     ok.
