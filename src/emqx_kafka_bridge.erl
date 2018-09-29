@@ -113,6 +113,10 @@ format_payload(Message) ->
                   {ts, emqx_time:now_secs(Message#message.timestamp)}],
     {ok, Payload}.
 
+ekaf_get_topic() ->
+    {ok, BrokerValues} = application:get_env(?APP, broker),
+    Topic = proplists:get_value(payloadtopic, BrokerValues),
+    Topic.
 
 %% Called when the plugin application stop
 unload() ->
@@ -127,7 +131,7 @@ unload() ->
     emqx:unhook('message.acked', fun ?MODULE:on_message_acked/3).
 
 produce_kafka_payload(Message) ->
-    Topic = <<"test">>,
+    Topic = ekaf_get_topic(),
     {ok,MessageBody} = emqx_json:safe_encode(Message),
     Payload = iolist_to_binary(MessageBody),
     ekaf:produce_async_batched(Topic, Payload).
